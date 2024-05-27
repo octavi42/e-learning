@@ -58,15 +58,36 @@ export const questionRouter = createTRPCRouter({
                     }
                 }
             }
-        }
+        },
+        orderBy: { order: 'asc' }
     });
     }),
 
-  getQuestion: publicProcedure
-    .input(z.object({ category: z.string() }))
-    .query(({ ctx, input }) => {
-    return ctx.db.question.findMany({
-        where: { categoryName: input.category },
-    });
+  getFilteredQuestion: publicProcedure
+    .input(z.object({ questionOrder: z.number(), userId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const question = await ctx.db.question.findFirst({
+        where: { order: input.questionOrder },
+      });
+
+      console.log('question', question);
+      
+
+      if (!question) {
+        throw new Error('Question not found');
+      }
+
+      const answer = await ctx.db.answer.findFirst({
+        where: {
+          questionId: question.id,
+          userId: input.userId,
+        },
+      });
+
+      return {
+        ...question,
+        answered: !!answer,
+        answer: answer?.answer ?? null,
+      };
     }),
 });

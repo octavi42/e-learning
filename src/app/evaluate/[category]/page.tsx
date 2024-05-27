@@ -1,12 +1,11 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { api } from "~/trpc/react";
 import LoadingSpinner from "../../_components/LoadingSpinner"; // Adjust the import path as necessary
 
 export default function Home() {
-  const router = useRouter();
   const params = useParams();
   const categoryId = params.category; // Assuming 'category' is the parameter name
   const [questions, setQuestions] = useState([]);
