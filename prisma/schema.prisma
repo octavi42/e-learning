@@ -5,16 +5,89 @@ generator client {
     provider = "prisma-client-js"
 }
 
+
 datasource db {
     provider = "mysql"
     url      = env("DATABASE_URL")
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
 
-    @@index([name])
+model User {
+    id        String   @id @default(cuid())
+
+    email           String?
+    name            String      @unique
+    categoryResume  String      @default("Start")
+    answerResume    Int         @default(0)
+
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+
+    summary   String?
+    answers   Answer[]
+}
+
+
+model Question {
+    id              String      @id @default(cuid())
+
+    question        String
+    expected_answer String
+    order           Int
+
+    answers         Answer[]
+    categoryName    String
+    category        Category @relation(fields: [categoryName], references: [name])
+}
+
+
+model Category {
+    // id        String   @id @default(cuid())
+
+    name      String    @unique
+    summary   String?
+    order     Int
+
+    questions Question[]
+}
+
+
+model Answer {
+    id              String      @id @default(cuid())
+
+    answer          String
+    rating          Int?    @default(0)
+    answered        Boolean @default(false)
+    answered_at     DateTime @default(now())
+    updated_at      DateTime @updatedAt
+    resource        Resources[]
+
+    questionId      String
+    question        Question @relation(fields: [questionId], references: [id])
+    userId          String
+    user            User     @relation(fields: [userId], references: [id])
+
+    @@unique([questionId, userId])
+}
+
+
+model Resources {
+    id             String      @id @default(cuid())
+
+    links          Links[]
+    summary        String?
+
+    answerId       String
+    answer         Answer? @relation(fields: [answerId], references: [id])
+}
+
+
+model Links {
+    id             String      @id @default(cuid())
+
+    link           String
+    summary        String
+
+    resourcesId    String?
+    resources      Resources? @relation(fields: [resourcesId], references: [id])
 }
