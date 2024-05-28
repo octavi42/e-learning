@@ -14,6 +14,7 @@ export default function Home() {
   const questionOrder = Number(params.questionOrder);
   const category = params.category;
   const [userId, setUserId] = useState('');
+  const [answer, setAnswer] = useState('');
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -27,6 +28,12 @@ export default function Home() {
   const { data: questionsData, isLoading: isLoadingQuestions, error: errorQuestions } = api.questions.getQuestions.useQuery({ category });
 
   const isAnswered = data ? (data.answered !== undefined ? data.answered : true) : true;
+
+  useEffect(() => {
+    if (data && data.answer) {
+      setAnswer(data.answer);
+    }
+  }, [data]);
 
   return (
     <main className="">
@@ -48,7 +55,7 @@ export default function Home() {
 
               <div className="container flex flex-col items-center justify-center px-4 pt-10 ">
                 <div className="w-full">
-                  <TextareaForm answered={data.answered} answer={data.answer} />
+                  <TextareaForm answered={data.answered} answer={answer} setAnswer={setAnswer} />
                 </div>
               </div>
             </div>
@@ -57,7 +64,14 @@ export default function Home() {
         <div className="w-full max-w-4xl rounded-lg p-2 mb-4">
           {questionsData ? (
             <>
-              <QuestionControlComponent answered={isAnswered} currentPage={questionOrder} totalQuestions={questionsData.length} />
+              <QuestionControlComponent 
+                answered={isAnswered} 
+                currentPage={questionOrder} 
+                totalQuestions={questionsData.length} 
+                question={data?.question} 
+                answer={answer} 
+                expectedAnswer="Replace this with the expected answer" // Replace this with actual expected answer
+              />
               <PaginationDemo questions={questionsData} currentPage={questionOrder} />
             </>
           ) : (
