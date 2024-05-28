@@ -4,13 +4,18 @@ import { useRouter } from "next/navigation";
 import * as React from "react";
 import { Button } from "~/components/ui/button";
 import { PaginationItem, PaginationNext, PaginationPrevious } from "~/components/ui/pagination";
+import { api } from "~/trpc/react";
 
-export function QuestionControlComponent({ answered, currentPage, totalQuestions, question, answer, expectedAnswer }) {
+export function QuestionControlComponent({ answered, currentPage, totalQuestions, question, answer, expectedAnswer, questionId, userId }) {
   const router = useRouter();
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const createAnswer = api.answer.create.useMutation();
 
   console.log('currentPage', currentPage);
 
   const handleSubmit = async () => {
+    setIsLoading(true);
     try {
       const res = await fetch('/api/questionResponse', {
         method: 'POST',
@@ -26,8 +31,15 @@ export function QuestionControlComponent({ answered, currentPage, totalQuestions
 
       const data = await res.json();
       console.log(data);
+
+      // Create the answer using TRPC
+      createAnswer.mutate({ answer, questionId, userId, correct: data.correct, rating: data.score, review: data.reason });
+
+      router.push(`${currentPage + 1}`);
     } catch (error) {
       console.error('Failed to submit:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -38,21 +50,21 @@ export function QuestionControlComponent({ answered, currentPage, totalQuestions
           className="w-[20%]" 
           href="#"
           onClick={() => { if (currentPage > 1) router.push(`${currentPage - 1}`) }}
-          disabled={currentPage <= 1}
+          disabled={currentPage <= 1 || isLoading}
         />
         <Button 
           variant={answered ? "destructive" : "default"} 
           className="w-[20%]" 
-          disabled={answered}
+          disabled={answered || isLoading}
           onClick={handleSubmit}
         >
-          {answered ? "Answered" : "Submit"}
+          {isLoading ? "Submitting..." : answered ? "Answered" : "Submit"}
         </Button>
         <PaginationNext 
           className="w-[20%]" 
           href="#"
           onClick={() => { if (currentPage < totalQuestions) router.push(`${currentPage + 1}`) }}
-          disabled={currentPage >= totalQuestions}
+          disabled={currentPage >= totalQuestions || isLoading}
         />
       </div>
     </div>

@@ -55,11 +55,12 @@ model Category {
 model Answer {
     id              String      @id @default(cuid())
 
-    answer          String
-    rating          Int?    @default(0)
-    answered        Boolean @default(false)
-    answered_at     DateTime @default(now())
-    updated_at      DateTime @updatedAt
+    answer          String      @db.Text
+    correct         Boolean
+    rating          Int
+    review          String      @db.Text
+    answered_at     DateTime    @default(now())
+    updated_at      DateTime    @updatedAt
     resource        Resources[]
 
     questionId      String

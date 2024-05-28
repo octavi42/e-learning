@@ -7,15 +7,20 @@ export const answerRouter = createTRPCRouter({
     .input(z.object({ 
         answer: z.string(),
         questionId: z.string(),
-        userId: z.string()
+        userId: z.string(),
+        correct: z.boolean(),
+        rating: z.number(),
+        review: z.string(),
     }))
     .mutation(async ({ ctx, input }) => {
       return ctx.db.answer.create({
         data: {
             answer: input.answer,
-            answered: true,
             questionId: input.questionId,
-            userId: input.userId
+            userId: input.userId,
+            correct: input.correct,
+            rating: input.rating,
+            review: input.review,
         },
       });
     }),

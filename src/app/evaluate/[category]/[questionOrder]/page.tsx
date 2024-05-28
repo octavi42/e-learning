@@ -71,6 +71,8 @@ export default function Home() {
                 question={data?.question} 
                 answer={answer} 
                 expectedAnswer="Replace this with the expected answer" // Replace this with actual expected answer
+                questionId={data?.id}
+                userId={userId}
               />
               <PaginationDemo questions={questionsData} currentPage={questionOrder} />
             </>
