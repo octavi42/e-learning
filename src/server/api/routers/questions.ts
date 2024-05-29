@@ -11,10 +11,10 @@ export const questionRouter = createTRPCRouter({
   }),
 
   getQuestions: publicProcedure
-  .input(z.object({ category: z.string() }))
+  .input(z.object({ categoryId: z.string() }))
     .query(({ ctx, input }) => {
     return ctx.db.question.findMany({
-        where: { categoryName: input.category },
+        where: { categoryId: input.categoryId },
     });
   }),
 
@@ -23,7 +23,7 @@ export const questionRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const questions = await ctx.db.question.findMany({
         where: { 
-          categoryName: input.category,
+          categoryId: input.category,
         },
       });
 
@@ -64,10 +64,17 @@ export const questionRouter = createTRPCRouter({
     }),
 
   getFilteredQuestion: publicProcedure
-    .input(z.object({ questionOrder: z.number(), userId: z.string() }))
+    .input(z.object({ categoryId: z.string(), questionOrder: z.number(), userId: z.string() }))
     .query(async ({ ctx, input }) => {
+
+      console.log('input', input);
+      
+
       const question = await ctx.db.question.findFirst({
-        where: { order: input.questionOrder },
+        where: {
+          categoryId: input.categoryId,
+          order: input.questionOrder,
+        },
       });
 
       console.log('question', question);

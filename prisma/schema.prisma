@@ -32,21 +32,23 @@ model Question {
     id              String      @id @default(cuid())
 
     question        String
-    expected_answer String
-    order           Int     @unique
+    expected_answer String      @db.Text
+    order           Int
 
     answers         Answer[]
-    categoryName    String
-    category        Category @relation(fields: [categoryName], references: [name])
+    categoryId      String
+    category        Category @relation(fields: [categoryId], references: [id])
+
+    @@unique([order, categoryId])
 }
 
 
 model Category {
-    // id        String   @id @default(cuid())
+    id        String   @id @default(cuid())
 
     name      String    @unique
-    summary   String?
-    order     Int       @unique
+    summary   String?   @db.Text
+    order     Int       @unique     @default(autoincrement())
 
     questions Question[]
 }

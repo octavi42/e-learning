@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE `Category` MODIFY `order` INTEGER NOT NULL AUTO_INCREMENT;
+
+-- AlterTable
+ALTER TABLE `Question` MODIFY `order` INTEGER NOT NULL AUTO_INCREMENT;

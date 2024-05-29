@@ -12,7 +12,7 @@ import { QuestionControlComponent } from "~/app/_components/QuestionControl";
 export default function Home() {
   const params = useParams();
   const questionOrder = Number(params.questionOrder);
-  const category = params.category;
+  const categoryId = String(params.categoryId);
   const [userId, setUserId] = useState('');
   const [answer, setAnswer] = useState('');
 
@@ -24,8 +24,8 @@ export default function Home() {
     }
   }, []);
 
-  const { data, isLoading, error } = api.questions.getFilteredQuestion.useQuery({ questionOrder, userId });
-  const { data: questionsData, isLoading: isLoadingQuestions, error: errorQuestions } = api.questions.getQuestions.useQuery({ category });
+  const { data, isLoading, error } = api.questions.getFilteredQuestion.useQuery({ categoryId, questionOrder, userId });
+  const { data: questionsData, isLoading: isLoadingQuestions, error: errorQuestions } = api.questions.getQuestions.useQuery({ categoryId });
 
   const isAnswered = data ? (data.answered !== undefined ? data.answered : true) : true;
 
@@ -38,7 +38,7 @@ export default function Home() {
   return (
     <main className="">
       <div className="fixed mt-10 ml-28">
-        <DropdownMenuRadioGroupDemo />
+        <DropdownMenuRadioGroupDemo paramCategotyId={categoryId} />
       </div>
       <div className="flex min-h-screen flex-col items-center justify-center">
         {isLoading ? (
