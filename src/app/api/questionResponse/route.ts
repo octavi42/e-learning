@@ -6,32 +6,6 @@ const openai = new OpenAI({apiKey: process.env.OPENAI_API_KEY})
 
 export async function POST (req: Request) {
 
-    const ftools = [{
-        "type": "function",
-        "function": {
-            "name": "get_response",
-            "description": "Evaluate users answer",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "correct": {
-                        "type": "boolean",
-                        "description": "Whether the user's answer is correct",
-                    },
-                    "reason": {
-                        "type": "string",
-                        "description": "The reason why the answer is correct or incorrect",
-                    },
-                    "score": {
-                        "type": "number",
-                        "description": "A score from 0 to 100 indicating how correct the answer is",
-                    },
-                },
-                "required": ["correct", "reason", "score"],
-            },
-        }
-    }]
-
     const json = await req.json()
     const { question, answer, expectedAnswer } = json
 
