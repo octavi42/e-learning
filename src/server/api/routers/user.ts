@@ -20,6 +20,20 @@ export const userRouter = createTRPCRouter({
     }),
 
 
+    changeUserEvaluation: publicProcedure
+    .input(z.object({ userId: z.string(), evaluation: z.boolean() }))
+    .mutation(async ({ ctx, input }) => {
+        const user = await ctx.db.user.update({
+            where: { id: input.userId },
+            data: {
+              evaluation: input.evaluation
+            }
+          });
+    
+      return user.id
+    }),
+
+
     setReview: publicProcedure
     .input(z.object({ 
         userId: z.string(),
@@ -32,6 +46,7 @@ export const userRouter = createTRPCRouter({
     }))
     .mutation(async ({ ctx, input }) => {
         try {
+
             // Start a transaction
             const result = await ctx.db.$transaction(async (prisma) => {
                 const userCategoryReview = await prisma.userCategoryReview.create({

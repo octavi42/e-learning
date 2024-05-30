@@ -10,7 +10,9 @@
     "dev": "next dev",
     "postinstall": "prisma generate",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "getData": "node prisma/getData.cjs",
+    "seed": "node prisma/seed.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.4.2",

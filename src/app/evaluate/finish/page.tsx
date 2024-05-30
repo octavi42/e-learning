@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AlertDialogDemo } from "~/app/_components/AlertDialog";
 import { Button } from "~/components/ui/button";
@@ -10,8 +11,12 @@ export default function Home() {
     const [userId, setUserId] = useState('');
     const [results, setResults] = useState({});
     const [isFetchingQuestions, setIsFetchingQuestions] = useState(false);
+    const [user, setUser] = useState({});
 
-    const createUser = api.user.setReview.useMutation({});
+    const { data: userData } = api.user.getUserById.useQuery({ id: userId });
+    const { mutate: createUser } = api.user.setReview.useMutation();
+    const { mutate: changeUserEvaluation } = api.user.changeUserEvaluation.useMutation();
+    const router = useRouter();
 
     // Fetch user ID from localStorage
     useEffect(() => {
@@ -22,6 +27,14 @@ export default function Home() {
         }
     }, []);
 
+    useEffect(() => {
+        if (userData) {
+            setUser(userData);
+        }
+
+        console.log('User data:', userData);
+    }, [userData]);
+
     // Fetch all categories and their questions
     const { data: categoriesWithQuestions, isLoading: isLoadingCategories, error: errorCategories } = api.questions.getQuestionsOnCategory.useQuery({ userId });
 
@@ -29,6 +42,11 @@ export default function Home() {
     const handleSubmit = async () => {
         setIsLoading(true);
         const categoryResults = {};
+
+        if (user.evaluation) {
+            router.push('/evaluate/result');
+            return;
+        }
 
         try {
             const formattedData = categoriesWithQuestions.map(({ category, questions }) => ({
@@ -42,9 +60,8 @@ export default function Home() {
             }));
 
             console.log('Formatted data:', formattedData);
-            
-            formattedData.forEach(async ({ category_id, questions }) => {
 
+            for (const { category_id, questions } of formattedData) {
                 const res = await fetch('/api/performanceReview', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -58,20 +75,28 @@ export default function Home() {
                 }
 
                 const data = await res.json();
-                formattedData.forEach(({ category }) => {
-                    categoryResults[category] = data[category];
-                });
+                categoryResults[category_id] = data;
 
                 console.log('Results:', data);
 
-                createUser.mutate({ userId: userId, category: category_id, review: data.description, improvement: data.improvement, score: data.score, source: data.sources_description, links: data.sources});
-            })
+                createUser({
+                    userId: userId,
+                    category: category_id,
+                    review: data.description,
+                    improvement: data.improvement,
+                    score: data.score,
+                    source: data.sources_description,
+                    links: data.sources
+                });
+            }
 
-            // setResults(categoryResults);
+            setResults(categoryResults);
         } catch (error) {
             console.error('Failed to submit:', error);
         } finally {
             setIsLoading(false);
+            changeUserEvaluation({ userId, evaluation: true });
+            router.push('/evaluate/result');
         }
     };
 
@@ -86,7 +111,14 @@ export default function Home() {
                 </p>
                 <div className="flex justify-center mb-4">
                     <Button onClick={handleSubmit} disabled={isLoading || isLoadingCategories || isFetchingQuestions} className="hover:bg-blue-400 hover:text-blue-950 text-white font-bold py-2 px-4 rounded">
-                        {isLoading ? 'Submitting...' : 'Evaluate'}
+                        {isLoading ? (
+                            <>
+                                <span>Submitting...</span>
+                                <span className="ml-2 spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            </>
+                        ) : (
+                            'Evaluate'
+                        )}
                     </Button>
                 </div>
                 {/* <AlertDialogDemo /> */}

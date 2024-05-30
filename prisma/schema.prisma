@@ -25,6 +25,7 @@ model User {
     name            String      @unique
     categoryResume  String      @default("Start")
     answerResume    Int         @default(0)
+    evaluation      Boolean     @default(false)
 
     createdAt DateTime  @default(now())
     updatedAt DateTime  @updatedAt
