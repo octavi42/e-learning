@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { AlertDialogDemo } from "~/app/_components/AlertDialog";
 import { Button } from "~/components/ui/button";
 import { api } from "~/trpc/react";
 
@@ -10,7 +9,6 @@ export default function Home() {
     const [isLoading, setIsLoading] = useState(false);
     const [userId, setUserId] = useState('');
     const [results, setResults] = useState({});
-    const [isFetchingQuestions, setIsFetchingQuestions] = useState(false);
     const [user, setUser] = useState({});
 
     const { data: userData } = api.user.getUserById.useQuery({ id: userId });
@@ -61,23 +59,28 @@ export default function Home() {
 
             console.log('Formatted data:', formattedData);
 
-            for (const { category_id, questions } of formattedData) {
-                const res = await fetch('/api/performanceReview', {
+            // Batch the requests
+            const reviewRequests = formattedData.map(({ category_id, questions }) =>
+                fetch('/api/performanceReview', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ category_review: questions })
-                });
+                }).then(res => {
+                    if (!res.ok) {
+                        return res.text().then(errorMessage => {
+                            throw new Error(`Network response was not ok: ${res.status} ${res.statusText} - ${errorMessage}`);
+                        });
+                    }
+                    return res.json();
+                })
+            );
 
-                if (!res.ok) {
-                    const errorMessage = await res.text();
-                    console.error('Error message:', errorMessage);
-                    throw new Error(`Network response was not ok: ${res.status} ${res.statusText}`);
-                }
+            // Execute all requests in parallel
+            const reviewResults = await Promise.all(reviewRequests);
 
-                const data = await res.json();
+            reviewResults.forEach((data, index) => {
+                const { category_id } = formattedData[index];
                 categoryResults[category_id] = data;
-
-                console.log('Results:', data);
 
                 createUser({
                     userId: userId,
@@ -88,7 +91,7 @@ export default function Home() {
                     source: data.sources_description,
                     links: data.sources
                 });
-            }
+            });
 
             setResults(categoryResults);
         } catch (error) {
@@ -110,7 +113,7 @@ export default function Home() {
                     and offer relevant resources to help you enhance your skills.
                 </p>
                 <div className="flex justify-center mb-4">
-                    <Button onClick={handleSubmit} disabled={isLoading || isLoadingCategories || isFetchingQuestions} className="hover:bg-blue-400 hover:text-blue-950 text-white font-bold py-2 px-4 rounded">
+                    <Button onClick={handleSubmit} disabled={isLoading || isLoadingCategories} className="hover:bg-blue-400 hover:text-blue-950 text-white font-bold py-2 px-4 rounded">
                         {isLoading ? (
                             <>
                                 <span>Submitting...</span>
@@ -122,6 +125,8 @@ export default function Home() {
                     </Button>
                 </div>
                 {/* <AlertDialogDemo /> */}
+                {isLoadingCategories && <p className="text-center text-gray-500">Loading categories and questions...</p>}
+                {errorCategories && <p className="text-center text-red-500">Error loading categories: {errorCategories.message}</p>}
             </div>
         </main>
     );
