@@ -51,7 +51,7 @@ export function DropdownMenuRadioGroupDemo({ paramCategoryId }) {
             </DropdownMenuRadioItem>
           ))}
           <DropdownMenuSeparator />
-          <DropdownMenuRadioItem value="back" onClick={() => router.push('/')}>
+          <DropdownMenuRadioItem value="back" onClick={() => router.push('/categories')}>
             Back to all
           </DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>

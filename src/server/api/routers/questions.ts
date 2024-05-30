@@ -18,6 +18,86 @@ export const questionRouter = createTRPCRouter({
     });
   }),
 
+  getIfQuestionsAnswered: publicProcedure
+  .input(z.object({ userId: z.string() }))
+  .query(async ({ ctx, input }) => {
+    const allQuestions = await ctx.db.question.findMany();
+
+    const answeredQuestions = await ctx.db.question.findMany({
+      where: {
+        answers: {
+          some: {
+            userId: input.userId,
+          },
+        },
+      },
+    });
+
+    // Return true if the user has answered all questions, otherwise false
+    return allQuestions.length === answeredQuestions.length;
+  }),
+
+
+  getUserQuestions: publicProcedure
+    .input(z.object({ categoryId: z.string(), userId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const questions = await ctx.db.question.findMany({
+        where: { categoryId: input.categoryId },
+      });
+
+      const questionsWithAnswers = await Promise.all(
+        questions.map(async (question) => {
+          const answer = await ctx.db.answer.findFirst({
+            where: {
+              questionId: question.id,
+              userId: input.userId,
+            },
+          });
+
+          return {
+            ...question,
+            answered: !!answer,
+            answer: answer?.answer ?? null,
+            review: answer?.review ?? null,
+          };
+        })
+      );
+
+      return questionsWithAnswers;
+    }),
+
+
+    getQuestionsOnCategory: publicProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(async ({ input, ctx }) => {
+      const categories = await ctx.db.category.findMany({
+        orderBy: { order: 'asc' },
+      });
+  
+      const questionsInCategory = [];
+  
+      for (const category of categories) {
+        const questions = await ctx.db.question.findMany({
+          where: { categoryId: category.id },
+          include: {
+            answers: {
+              where: {
+                userId: input.userId,
+              },
+            },
+          },
+        });
+  
+        questionsInCategory.push({
+          category,
+          questions,
+        });
+      }
+  
+      return questionsInCategory;
+    }),
+
+
   getFilteredQuestions: publicProcedure
     .input(z.object({ category: z.string(), userId: z.string() }))
     .query(async ({ ctx, input }) => {

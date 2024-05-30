@@ -39,7 +39,7 @@ export async function POST (req: Request) {
 
     const completion = await openai.chat.completions.create({
         messages: [{ role: "system", content: "You are a helpful assistant." },
-        {"role": "user", "content": `How did the user answer this question: ${question}, keep in mind that the expected answer is ${expectedAnswer}, this is how the user answered: ${answer}`},],
+        {"role": "user", "content": `How did the I answer this question: ${question}, keep in mind that the expected answer is ${expectedAnswer}, this is how the user answered: ${answer}`},],
         model: "gpt-4o",
         tools: [{
             type: "function",

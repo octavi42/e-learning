@@ -25,8 +25,26 @@ model User {
 
     summary   String?
     answers   Answer[]
+
+    userCategoryReview UserCategoryReview[]
 }
 
+model UserCategoryReview {
+    id          String   @id @default(cuid())
+
+    userId      String
+    user        User     @relation(fields: [userId], references: [id])
+
+    categoryId  String
+    category    Category @relation(fields: [categoryId], references: [id])
+
+    review          String?  @db.Text
+    improvement     String?  @db.Text
+    score           Int?
+    // sources                 String?   @db.Text
+
+    @@unique([userId, categoryId])
+}
 
 model Question {
     id              String      @id @default(cuid())
@@ -44,13 +62,16 @@ model Question {
 
 
 model Category {
-    id        String   @id @default(cuid())
+    id          String   @id @default(cuid())
 
-    name      String    @unique
-    summary   String?   @db.Text
-    order     Int       @unique     @default(autoincrement())
+    name        String    @unique
+    summary     String?   @db.Text
 
-    questions Question[]
+    order       Int       @unique     @default(autoincrement())
+
+    categoryResume  UserCategoryReview[]
+
+    questions   Question[]
 }
 
 

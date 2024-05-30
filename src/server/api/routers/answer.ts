@@ -33,6 +33,28 @@ export const answerRouter = createTRPCRouter({
       });
     }),
 
+    getCategoryAnswers: publicProcedure
+    .input(z.object({ userId: z.string(), categoryId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const answers = await ctx.db.answer.findMany({
+        where: { 
+          userId: input.userId,
+          question: {
+            categoryId: input.categoryId,
+          },
+        },
+        include: {
+          question: true, // Include related questions
+        },
+      });
+
+      return answers.map(answer => ({
+        questionId: answer.questionId,
+        questionTitle: answer.question.question,
+        review: answer.review,
+      }));
+    }),
+
   getAnswer: publicProcedure
     .input(z.object({
       questionId: z.string(),

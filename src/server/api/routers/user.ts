@@ -20,6 +20,37 @@ export const userRouter = createTRPCRouter({
     }),
 
 
+    setReview: publicProcedure
+    .input(z.object({ 
+        userId: z.string(),
+        category: z.string(),
+        review: z.string(),
+        improvement: z.string(),
+        score: z.number(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+        const user = await ctx.db.userCategoryReview.create({
+            data: {
+                userId: input.userId,
+                categoryId: input.category,
+                review: input.review,
+                improvement: input.improvement,
+                score: input.score
+            }
+        });
+
+        return user
+    }),
+
+    getRevies: publicProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(({ ctx, input }) => {
+        return ctx.db.userCategoryReview.findMany({
+            where: { userId: input.userId }
+        });
+    }),
+
+
     findOrCreateUser: publicProcedure
     .input(z.object({ 
         name: z.string().min(3),

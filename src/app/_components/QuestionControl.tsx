@@ -6,13 +6,11 @@ import { Button } from "~/components/ui/button";
 import { PaginationItem, PaginationNext, PaginationPrevious } from "~/components/ui/pagination";
 import { api } from "~/trpc/react";
 
-export function QuestionControlComponent({ answered, currentPage, totalQuestions, question, answer, expectedAnswer, questionId, userId }) {
+export function QuestionControlComponent({ answered, nextCategory, previousCategory, currentPage, totalQuestions, question, answer, expectedAnswer, questionId, userId }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = React.useState(false);
 
   const createAnswer = api.answer.create.useMutation();
-
-  console.log('currentPage', currentPage);
 
   const handleSubmit = async () => {
     setIsLoading(true);
@@ -30,12 +28,16 @@ export function QuestionControlComponent({ answered, currentPage, totalQuestions
       }
 
       const data = await res.json();
-      console.log(data);
 
       // Create the answer using TRPC
       createAnswer.mutate({ answer, questionId, userId, correct: data.correct, rating: data.score, review: data.reason });
 
+      if (currentPage === totalQuestions) {
+        router.push(`/evaluate/${nextCategory}/1`);
+        return
+      }
       router.push(`${currentPage + 1}`);
+
     } catch (error) {
       console.error('Failed to submit:', error);
     } finally {
@@ -49,8 +51,14 @@ export function QuestionControlComponent({ answered, currentPage, totalQuestions
         <PaginationPrevious 
           className="w-[20%]" 
           href="#"
-          onClick={() => { if (currentPage > 1) router.push(`${currentPage - 1}`) }}
-          disabled={currentPage <= 1 || isLoading}
+          onClick={() => { 
+            console.log('currentPage', currentPage);
+            if (currentPage === 1) {
+              router.push(`/evaluate/${previousCategory}/${totalQuestions}`);
+              return
+            }
+            router.push(`${currentPage - 1}`);
+           }}
         />
         <Button 
           variant={answered ? "destructive" : "default"} 
@@ -63,8 +71,13 @@ export function QuestionControlComponent({ answered, currentPage, totalQuestions
         <PaginationNext 
           className="w-[20%]" 
           href="#"
-          onClick={() => { if (currentPage < totalQuestions) router.push(`${currentPage + 1}`) }}
-          disabled={currentPage >= totalQuestions || isLoading}
+          onClick={() => { 
+            if (currentPage === totalQuestions) {
+              router.push(`/evaluate/${nextCategory}/1`);
+              return
+            }
+            router.push(`${currentPage + 1}`);
+           }}
         />
       </div>
     </div>

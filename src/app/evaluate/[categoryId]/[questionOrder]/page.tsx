@@ -8,6 +8,7 @@ import { TextareaForm } from "~/app/_components/TextArea";
 import { Skeleton } from "~/components/ui/skeleton";
 import { PaginationDemo } from "~/app/_components/Pagination";
 import { QuestionControlComponent } from "~/app/_components/QuestionControl";
+import { AlertDemo } from "~/app/_components/DoneAlert";
 
 export default function Home() {
   const params = useParams();
@@ -26,6 +27,15 @@ export default function Home() {
 
   const { data, isLoading, error } = api.questions.getFilteredQuestion.useQuery({ categoryId, questionOrder, userId });
   const { data: questionsData, isLoading: isLoadingQuestions, error: errorQuestions } = api.questions.getQuestions.useQuery({ categoryId });
+  const { data: answeredQuestions } = api.questions.getIfQuestionsAnswered.useQuery({ userId });
+  const { data: categories } = api.questions.getCategorys.useQuery();
+  
+  const categoryOrder = categories?.find((category) => category.id === categoryId)?.order;
+  const nextCategoryOrder = categoryOrder ? categoryOrder + 1 : null;
+  const nextCategoryId = nextCategoryOrder !== null ? categories?.find((category) => category.order === nextCategoryOrder)?.id : null;
+  const previousCategoryOrder = categoryOrder ? categoryOrder - 1 : null;
+  const previousCategoryId = previousCategoryOrder !== null ? categories?.find((category) => category.order === previousCategoryOrder)?.id : null;
+  
 
   const isAnswered = data ? (data.answered !== undefined ? data.answered : true) : true;
 
@@ -66,6 +76,8 @@ export default function Home() {
             <>
               <QuestionControlComponent 
                 answered={isAnswered} 
+                nextCategory={nextCategoryId}
+                previousCategory={previousCategoryId}
                 currentPage={questionOrder} 
                 totalQuestions={questionsData.length} 
                 question={data?.question} 
@@ -80,9 +92,8 @@ export default function Home() {
             <div className="h-14 w-full bg-white" />
           )}
         </div>
-        <div className="container flex flex-col items-center justify-center px-4 py-16 ">
-          <div className="w-1/3"></div>
-        </div>
+        
+        {answeredQuestions && <AlertDemo />}
       </div>
     </main>
   );
