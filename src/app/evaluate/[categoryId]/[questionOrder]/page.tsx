@@ -52,13 +52,13 @@ export default function Home() {
       </div>
       <div className="flex min-h-screen flex-col items-center justify-center">
         {isLoading ? (
-          <div className="w-full max-w-4xl bg-white rounded-lg p-6 mb-4">
+          <div className="w-full max-w-4xl bg-[#e8eaeb] rounded-lg p-6 mb-4">
             <Skeleton className="h-8 w-full mb-4" /> {/* Placeholder for the question text */}
             <Skeleton className="h-32 w-full" /> {/* Placeholder for the textarea */}
           </div>
         ) : (
           data && (
-            <div className="w-full max-w-4xl bg-white rounded-lg p-6 mb-4">
+            <div className="w-full max-w-4xl bg-[#e5eeef] rounded-lg p-6 mb-4">
               <h2 className={`text-2xl font-light mb-2 text-slate-800`}>
                 {data.question}
               </h2>
@@ -89,7 +89,7 @@ export default function Home() {
               <PaginationDemo questions={questionsData} currentPage={questionOrder} />
             </>
           ) : (
-            <div className="h-14 w-full bg-white" />
+            <div className="h-14 w-full bg-[#e5eeef]" />
           )}
         </div>
         

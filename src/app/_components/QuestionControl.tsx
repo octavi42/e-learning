@@ -47,7 +47,7 @@ export function QuestionControlComponent({ answered, nextCategory, previousCateg
 
   return (
     <div className="my-2">
-      <div className="flex justify-around bg-white py-3 rounded-xl">
+      <div className="flex justify-around bg-[#dbe2e2] py-3 rounded-xl">
         <PaginationPrevious 
           className="w-[20%]" 
           href="#"

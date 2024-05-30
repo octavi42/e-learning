@@ -11,6 +11,12 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+enum difficulty {
+    EASY
+    MEDIUM
+    HARD
+}
+
 
 model User {
     id        String   @id @default(cuid())
@@ -38,10 +44,11 @@ model UserCategoryReview {
     categoryId  String
     category    Category @relation(fields: [categoryId], references: [id])
 
-    review          String?  @db.Text
-    improvement     String?  @db.Text
+    review          String?     @db.Text
+    improvement     String?     @db.Text
     score           Int?
-    // sources                 String?   @db.Text
+    source          String?     @db.Text
+    links           Links[]
 
     @@unique([userId, categoryId])
 }
@@ -52,6 +59,8 @@ model Question {
     question        String
     expected_answer String      @db.Text
     order           Int
+
+    difficulty      difficulty?
 
     answers         Answer[]
     categoryId      String
@@ -84,7 +93,6 @@ model Answer {
     review          String      @db.Text
     answered_at     DateTime    @default(now())
     updated_at      DateTime    @updatedAt
-    resource        Resources[]
 
     questionId      String
     question        Question @relation(fields: [questionId], references: [id])
@@ -95,23 +103,13 @@ model Answer {
 }
 
 
-model Resources {
-    id             String      @id @default(cuid())
-
-    links          Links[]
-    summary        String?
-
-    answerId       String
-    answer         Answer? @relation(fields: [answerId], references: [id])
-}
-
-
 model Links {
     id             String      @id @default(cuid())
 
-    link           String
-    summary        String
+    title          String?  @db.Text
+    link           String   @db.Text
+    summary        String   @db.Text
 
-    resourcesId    String?
-    resources      Resources? @relation(fields: [resourcesId], references: [id])
+    userCategoryReviewId String?
+    userCategoryReview   UserCategoryReview? @relation(fields: [userCategoryReviewId], references: [id])
 }

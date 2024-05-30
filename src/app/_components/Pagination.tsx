@@ -12,7 +12,7 @@ export function PaginationDemo({ questions, currentPage }) {
   const router = useRouter();
 
   return (
-    <Pagination className="bg-white py-3 rounded-xl">
+    <Pagination className="bg-[#dbe2e2] py-3 rounded-xl">
       <PaginationContent>
         {questions.map((question, index) => (
           <PaginationItem key={index}>

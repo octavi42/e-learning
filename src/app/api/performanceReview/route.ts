@@ -37,10 +37,28 @@ export async function POST (req: Request) {
                             type: "string",
                             description: "area where I can improve",
                         },
+                        sources_description: {
+                            type: "string",
+                            description: "description of what the sources will teach me",
+                        },
                         sources: {
                             type: "array",
                             items: {
-                                type: "string",
+                                type: "object",
+                                properties: {
+                                    title: {
+                                        type: "string",
+                                        description: "title of the source",
+                                    },
+                                    url: {
+                                        type: "string",
+                                        description: "url of the source",
+                                    },
+                                    summary: {
+                                        type: "string",
+                                        description: "summary of the source",
+                                    }
+                                },
                             },
                             description: "sources that I can use to improve",
                         },
@@ -49,7 +67,7 @@ export async function POST (req: Request) {
                             description: "A score from 0 to 100 indicating how correct the answer is",
                         },
                     },
-                    required: ["description", "improvement", "score"],
+                    required: ["description", "improvement", "sources_description", "sources", "score"],
                 },
             }
         }]

@@ -1,5 +1,6 @@
 'use client';
 
+import { AccordionHeader } from "@radix-ui/react-accordion";
 import { useSearchParams } from "next/navigation";
 import * as React from "react";
 
@@ -12,10 +13,6 @@ import {
 
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { api } from "~/trpc/react";
-
-const tags = Array.from({ length: 50 }).map(
-    (_, i, a) => `v1.2.0-beta.${a.length - i}`
-);
 
 export function ScrollAreaDemo({categoryId}) {
     const searchParams = useSearchParams();
@@ -63,6 +60,11 @@ React.useEffect(() => {
                         <AccordionItem key={question.id} value={question.id}>
                             <AccordionTrigger>{question.question}</AccordionTrigger>
                             <AccordionContent>
+                                <AccordionHeader className="font-bold">Answer:</AccordionHeader>
+                                {question.answer}
+                            </AccordionContent>
+                            <AccordionContent>
+                                <AccordionHeader className="font-bold">Review:</AccordionHeader>
                                 {question.review}
                             </AccordionContent>
                         </AccordionItem>

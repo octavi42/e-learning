@@ -64,7 +64,7 @@ export default function Home() {
 
                 console.log('Results:', data);
 
-                createUser.mutate({ userId: userId, category: category_id, review: data.description, improvement: data.improvement, score: data.score });
+                createUser.mutate({ userId: userId, category: category_id, review: data.description, improvement: data.improvement, score: data.score, source: data.sources_description, links: data.sources});
             })
 
             // setResults(categoryResults);
@@ -85,23 +85,11 @@ export default function Home() {
                     and offer relevant resources to help you enhance your skills.
                 </p>
                 <div className="flex justify-center mb-4">
-                    <Button onClick={handleSubmit} disabled={isLoading || isLoadingCategories || isFetchingQuestions} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    <Button onClick={handleSubmit} disabled={isLoading || isLoadingCategories || isFetchingQuestions} className="hover:bg-blue-400 hover:text-blue-950 text-white font-bold py-2 px-4 rounded">
                         {isLoading ? 'Submitting...' : 'Evaluate'}
                     </Button>
                 </div>
-                <AlertDialogDemo />
-                {isLoadingCategories && <p className="text-center text-gray-500">Loading categories...</p>}
-                {errorCategories && <p className="text-center text-red-500">Error loading categories: {errorCategories.message}</p>}
-                <div className="mt-6">
-                    {Object.entries(results).map(([category, result]) => (
-                        <div key={category} className="mb-4">
-                            <h2 className="text-2xl font-bold text-gray-800">{category}</h2>
-                            <p className="text-lg text-gray-700">Description: {result.description}</p>
-                            <p className="text-lg text-gray-700">Improvement: {result.improvement}</p>
-                            <p className="text-lg text-gray-700">Score: {result.score}</p>
-                        </div>
-                    ))}
-                </div>
+                {/* <AlertDialogDemo /> */}
             </div>
         </main>
     );
